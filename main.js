@@ -1,27 +1,23 @@
 // Modules to control application life and create native browser window
 const {app, BrowserWindow} = require('electron')
 const path = require('path')
+const DiscordRPC = require('discord-rpc');
+const clientId = '730577377066877020';
+const scopes = ['rpc', 'rpc.api', 'messages.read'];
 
 function createWindow () {
-  // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    autoHideMenuBar: true,
+    icon: __dirname + '/favicon.ico',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
   })
-
-  // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.loadURL('https://olgply.com/')
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow()
 
@@ -32,12 +28,36 @@ app.whenReady().then(() => {
   })
 })
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 })
+
+const rpc = new DiscordRPC.Client({ transport: 'ipc' });
+const startTimestamp = new Date();
+
+async function setActivity() {
+  const title = BrowserWindow.getFocusedWindow().getTitle();
+  
+  rpc.setActivity({
+    details: "ogply.com",
+    state: `${title}`,
+    startTimestamp,
+    largeImageKey: 'logo',
+    largeImageText: 'olgply.com - ad free streaming',
+    instance: false,
+  });
+}
+
+rpc.on('ready', () => {
+  setActivity();
+
+  // activity can only be set every 15 seconds
+  setInterval(() => {
+    setActivity();
+  }, 15e3);
+});
+
+rpc.login({ clientId }).catch(console.error);
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
