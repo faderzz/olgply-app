@@ -22,7 +22,7 @@
     "electron-winstaller": "^5.0.0"
   },
   "dependencies": {
-    "@cliqz/adblocker-electron": "^1.25.1",
+    "@cliqz/adblocker-electron": "^1.25.2",
     "discord-rpc": "^4.0.1"
   }
 }
